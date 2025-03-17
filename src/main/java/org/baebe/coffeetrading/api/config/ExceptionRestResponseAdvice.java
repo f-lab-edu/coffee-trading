@@ -57,7 +57,7 @@ public class ExceptionRestResponseAdvice {
                 coreException
             );
         }
-        return ApiResponse.error(ErrorTypes.UNSPECIFIED);
+        return ApiResponse.error(ErrorTypes.INTERNAL_ERROR);
     }
 
     @ExceptionHandler(CoreException.class)
