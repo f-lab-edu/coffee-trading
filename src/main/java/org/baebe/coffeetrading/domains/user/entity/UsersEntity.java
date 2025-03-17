@@ -1,23 +1,24 @@
 package org.baebe.coffeetrading.domains.user.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.commons.types.user.AccountTypes;
 import org.baebe.coffeetrading.commons.types.user.GenderTypes;
 import org.baebe.coffeetrading.commons.types.user.UserStatus;
 import org.baebe.coffeetrading.commons.types.user.UserRole;
 import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@Setter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "USERS")
 public class UsersEntity extends BaseCreatedAtEntity {
 
     @Column(name = "EMAIL", nullable = false, length = 50)
@@ -52,4 +53,29 @@ public class UsersEntity extends BaseCreatedAtEntity {
     @Column(name = "USER_TYPE")
     @Enumerated(EnumType.STRING)
     private UserRole userType;
+
+    @Builder
+    private UsersEntity(
+        String email,
+        String password,
+        String userName,
+        String phone,
+        String birthday,
+        GenderTypes gender,
+        String nickname,
+        UserStatus status,
+        AccountTypes accountType,
+        UserRole userType
+    ) {
+        this.email = email;
+        this.password = password;
+        this.userName = userName;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.gender = gender;
+        this.nickname = nickname;
+        this.status = status;
+        this.accountType = accountType;
+        this.userType = userType;
+    }
 }

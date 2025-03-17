@@ -1,29 +1,41 @@
 package org.baebe.coffeetrading.domains.order.entity;
 
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
-import org.baebe.coffeetrading.domains.product.entity.Products;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.baebe.coffeetrading.domains.product.entity.ProductsEntity;
 
 @Getter
-@Setter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "ORDER_ITEMS")
 public class OrderItemsEntity extends BaseCreatedAtEntity {
 
     private Integer count;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID")
-    private Orders order;
+    @JoinColumn(name = "ORDER_ID")
+    private OrdersEntity order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID")
-    private Products product;
+    @JoinColumn(name = "PRODUCT_ID")
+    private ProductsEntity product;
+
+    @Builder
+    private OrderItemsEntity(
+        Integer count,
+        OrdersEntity order,
+        ProductsEntity product
+    ) {
+        this.count = count;
+        this.order = order;
+        this.product = product;
+    }
 }

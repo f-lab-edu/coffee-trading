@@ -1,26 +1,38 @@
 package org.baebe.coffeetrading.domains.chat.entity;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@Setter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "CHAT_GROUPS")
 public class ChatGroupsEntity extends BaseCreatedAtEntity {
 
     private String groupName;
 
     @OneToMany(mappedBy = "chatGroup")
-    private List<ChatGroupUsers> chatGroupUsers = new ArrayList<>();
+    private List<ChatGroupUsersEntity> chatGroupUsers = new ArrayList<>();
 
     @OneToMany(mappedBy = "chatGroup")
-    private List<ChatMessages> chatMessages = new ArrayList<>();
+    private List<ChatMessagesEntity> chatMessages = new ArrayList<>();
+
+    @Builder
+    private ChatGroupsEntity(
+        String groupName,
+        List<ChatGroupUsersEntity> chatGroupUser,
+        List<ChatMessagesEntity> chatMessage
+    ) {
+        this.groupName = groupName;
+        this.chatGroupUsers = chatGroupUser;
+        this.chatMessages = chatMessage;
+    }
 }

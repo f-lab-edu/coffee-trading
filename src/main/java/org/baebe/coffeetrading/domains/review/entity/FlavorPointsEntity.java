@@ -1,36 +1,50 @@
 package org.baebe.coffeetrading.domains.review.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
-import org.baebe.coffeetrading.domains.store.entity.Stores;
-import org.baebe.coffeetrading.domains.user.entity.Users;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.baebe.coffeetrading.domains.store.entity.StoresEntity;
+import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 
 @Getter
-@Setter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "FLAVOR_POINTS")
 public class FlavorPointsEntity extends BaseCreatedAtEntity {
 
     @Column(name = "POINT", nullable = false)
     private Integer reviewPoint;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID")
-    private Stores store;
+    @JoinColumn(name = "STORE_ID")
+    private StoresEntity store;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID")
-    private FlavorItems flavorItem;
+    @JoinColumn(name = "FLAVORITEM_ID")
+    private FlavorItemsEntity flavorItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID")
-    private Users user;
+    @JoinColumn(name = "USER_ID")
+    private UsersEntity user;
+
+    @Builder
+    private FlavorPointsEntity(
+        Integer reviewPoint,
+        StoresEntity store,
+        FlavorItemsEntity flavorItem,
+        UsersEntity user
+    ) {
+        this.reviewPoint = reviewPoint;
+        this.store = store;
+        this.flavorItem = flavorItem;
+        this.user = user;
+    }
 }

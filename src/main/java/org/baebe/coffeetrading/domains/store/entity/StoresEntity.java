@@ -1,20 +1,21 @@
 package org.baebe.coffeetrading.domains.store.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.commons.types.store.StoreTypes;
 import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@Setter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "STORES")
 public class StoresEntity extends BaseCreatedAtEntity {
 
     @Column(name = "TITLE", nullable = false, length = 100)
@@ -35,4 +36,21 @@ public class StoresEntity extends BaseCreatedAtEntity {
     @Column(name = "STORE_TYPE")
     @Enumerated(EnumType.STRING)
     private StoreTypes storeType;
+
+    @Builder
+    private StoresEntity(
+        String title,
+        String address,
+        String roadNameAddress,
+        String telephone,
+        String description,
+        StoreTypes storeType
+    ) {
+        this.title = title;
+        this.address = address;
+        this.roadNameAddress = roadNameAddress;
+        this.telephone = telephone;
+        this.description = description;
+        this.storeType = storeType;
+    }
 }

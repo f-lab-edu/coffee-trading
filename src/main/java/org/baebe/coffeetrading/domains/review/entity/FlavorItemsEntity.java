@@ -1,19 +1,25 @@
 package org.baebe.coffeetrading.domains.review.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@Setter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "FLAVOR_ITEMS")
 public class FlavorItemsEntity extends BaseCreatedAtEntity {
 
     @Column(name = "NAME")
     private String reviewItemName;
+
+    @Builder
+    private FlavorItemsEntity(String reviewItemName) {
+        this.reviewItemName = reviewItemName;
+    }
 }

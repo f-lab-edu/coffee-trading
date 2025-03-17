@@ -1,20 +1,21 @@
 package org.baebe.coffeetrading.domains.product.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@Setter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "PRODUCT_OPTIONS")
 public class ProductOptionsEntity extends BaseCreatedAtEntity {
 
     @Column(name = "NAME", nullable = false)
@@ -27,6 +28,19 @@ public class ProductOptionsEntity extends BaseCreatedAtEntity {
     private Integer optionPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID")
-    private Products product;
+    @JoinColumn(name = "PRODUCT_ID")
+    private ProductsEntity product;
+
+    @Builder
+    private ProductOptionsEntity(
+        String productOptionName,
+        String description,
+        Integer optionPrice,
+        ProductsEntity product
+    ) {
+        this.productOptionName = productOptionName;
+        this.description = description;
+        this.optionPrice = optionPrice;
+        this.product = product;
+    }
 }
