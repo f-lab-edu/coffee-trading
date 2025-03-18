@@ -11,7 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
+import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 
 @Getter
@@ -19,7 +19,7 @@ import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 @Entity
 @AttributeOverride(name = "createdAt", column = @Column(name = "ACCESSED_AT"))
 @Table(name = "CHAT_GROUP_USERS")
-public class ChatGroupUsersEntity extends BaseCreatedAtEntity {
+public class ChatGroupUsersEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")

@@ -9,14 +9,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
+import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 import org.baebe.coffeetrading.domains.product.entity.ProductsEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "ORDER_ITEMS")
-public class OrderItemsEntity extends BaseCreatedAtEntity {
+public class OrderItemsEntity extends BaseTimeEntity {
 
     private Integer count;
 

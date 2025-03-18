@@ -10,13 +10,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
+import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
-public class ProductOptionsEntity extends BaseCreatedAtEntity {
+public class ProductOptionsEntity extends BaseTimeEntity {
 
     @Column(name = "NAME", nullable = false)
     private String productOptionName;

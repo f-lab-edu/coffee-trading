@@ -12,7 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
+import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 
 @Getter
@@ -20,7 +20,7 @@ import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 @Entity
 @AttributeOverride(name = "createdAt", column = @Column(name = "SENDED_AT"))
 @Table(name = "CHAT_MESSAGES")
-public class ChatMessagesEntity extends BaseCreatedAtEntity {
+public class ChatMessagesEntity extends BaseTimeEntity {
 
     @Column(name = "CONTENT", length = 4000)
     private String messageContent;

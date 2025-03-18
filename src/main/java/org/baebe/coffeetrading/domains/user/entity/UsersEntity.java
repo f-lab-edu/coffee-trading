@@ -13,13 +13,13 @@ import org.baebe.coffeetrading.commons.types.user.AccountTypes;
 import org.baebe.coffeetrading.commons.types.user.GenderTypes;
 import org.baebe.coffeetrading.commons.types.user.UserStatus;
 import org.baebe.coffeetrading.commons.types.user.UserRole;
-import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
+import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "USERS")
-public class UsersEntity extends BaseCreatedAtEntity {
+public class UsersEntity extends BaseTimeEntity {
 
     @Column(name = "EMAIL", nullable = false, length = 50)
     private String email;

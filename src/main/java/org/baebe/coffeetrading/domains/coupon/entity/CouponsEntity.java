@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.commons.types.coupon.CouponStatus;
 import org.baebe.coffeetrading.commons.types.coupon.CouponTypes;
-import org.baebe.coffeetrading.domains.common.BaseCreatedAtEntity;
+import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 import org.baebe.coffeetrading.domains.order.entity.OrdersEntity;
 import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 
@@ -24,7 +24,7 @@ import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "COUPONS")
-public class CouponsEntity extends BaseCreatedAtEntity {
+public class CouponsEntity extends BaseTimeEntity {
 
     @Column(name = "NAME", nullable = false)
     private String name;
