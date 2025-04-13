@@ -5,10 +5,10 @@ services:
     container_name: mysql
     restart: always
     ports:
-      - 3306:3306 # host
+      - ${MYSQL_BINDING_PORT}:${MYSQL_PORT} # host
     volumes:
       - ./data/mysql:/var/lib/mysqld
-      - ./data/mysql/config:/etc/mysqld/conf.d  # conf 파일이 위치한 디렉토리를 마운트
+      - ./data/mysql/config:/etc/mysqld/conf  # conf 파일이 위치한 디렉토리를 마운트
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -18,3 +18,15 @@ services:
       MYSQL_USER: ${STORAGE_DB_USER}
       MYSQL_PASSWORD: ${STORAGE_DB_PASS}
       TZ: Asia/Seoul
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - ${REDIS_BINDING_PORT}:${REDIS_PORT}
+    volumes:
+      - ./data/redis:/var/lib/redis
+      - ./data/redis/config:/usr/local/etc/redis/redis.conf
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
