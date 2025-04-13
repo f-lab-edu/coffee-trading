@@ -13,7 +13,7 @@ import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
 import org.baebe.coffeetrading.commons.types.user.UserRole;
 import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 import org.baebe.coffeetrading.domains.user.jwt.dto.vo.JwtTokenDto;
-import org.baebe.coffeetrading.domains.user.jwt.helper.JwtLocalManager;
+import org.baebe.coffeetrading.domains.user.jwt.helper.JwtManager;
 import org.baebe.coffeetrading.domains.user.jwt.helper.JwtTokenProvider;
 import org.baebe.coffeetrading.domains.user.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +27,7 @@ public class AuthBusiness {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final JwtLocalManager jwtLocalManager;
+    private final JwtManager jwtManager;
     private final AuthenticationManager authenticationManager;
 
     public LoginResponse loginHandle(LoginRequest loginRequest) {
@@ -44,7 +44,7 @@ public class AuthBusiness {
         String accessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
         String refreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
 
-        jwtLocalManager.addUserToken(userId.toString(), createJwtTokenDto(accessToken, refreshToken));
+        jwtManager.addUserToken(userId.toString(), createJwtTokenDto(accessToken, refreshToken));
 
         return LoginResponse.of(accessToken, refreshToken, user);
     }
@@ -53,7 +53,7 @@ public class AuthBusiness {
 
         UsersEntity user = userService.getByUserId(Long.parseLong(userId));
         log.info("Logout userId : {}, userEmail : {}", user.getId(), user.getEmail());
-        jwtLocalManager.removeUserToken(user.getId().toString());
+        jwtManager.removeUserToken(user.getId().toString());
     }
 
     public LoginResponse refreshHandle(TokenRequest tokenRequest) {
@@ -71,7 +71,7 @@ public class AuthBusiness {
         String newAccessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
         String newRefreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
 
-        jwtLocalManager.addUserToken(userId.toString(), createJwtTokenDto(newAccessToken, newRefreshToken));
+        jwtManager.addUserToken(userId.toString(), createJwtTokenDto(newAccessToken, newRefreshToken));
 
         return LoginResponse.of(newAccessToken, newRefreshToken, user);
     }
