@@ -35,6 +35,8 @@ dependencies {
 
     implementation 'com.mysql:mysql-connector-j:8.0.33'
 
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
