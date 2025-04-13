@@ -27,14 +27,14 @@ public class UsersEntity extends BaseTimeEntity {
     @Column(name = "PASSWORD", nullable = false, length = 256)
     private String password;
 
-    @Column(name = "USER_NAME", nullable = false, length = 256)
+    @Column(name = "USER_NAME", length = 256)
     private String userName;
 
     @Column(name = "PHONE", length = 256)
     private String phone;
 
     @Column(name = "BIRTHDAY", length = 10)
-    private String birthday;
+    private String birthDay;
 
     @Column(name = "GENDER")
     @Enumerated(EnumType.STRING)
@@ -44,6 +44,7 @@ public class UsersEntity extends BaseTimeEntity {
     private String nickname;
 
     @Column(name = "STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     @Column(name = "ACCOUNT_TYPE")
@@ -60,7 +61,7 @@ public class UsersEntity extends BaseTimeEntity {
         String password,
         String userName,
         String phone,
-        String birthday,
+        String birthDay,
         GenderTypes gender,
         String nickname,
         UserStatus status,
@@ -71,11 +72,13 @@ public class UsersEntity extends BaseTimeEntity {
         this.password = password;
         this.userName = userName;
         this.phone = phone;
-        this.birthday = birthday;
+        this.birthDay = birthDay;
         this.gender = gender;
         this.nickname = nickname;
         this.status = status;
         this.accountType = accountType;
         this.userType = userType;
     }
+
+
 }
