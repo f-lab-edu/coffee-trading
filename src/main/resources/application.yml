@@ -1,0 +1,39 @@
+#spring.profiles.active: dev
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    show-sql: true
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${STORAGE_DB_URL}
+    username: root
+    password: ${STORAGE_DB_PASS}
+
+server:
+  port: 8880
+  tomcat:
+    max-connections: 20000
+#    threads:
+#      max: 600
+#      min-spare: 100
+cors:
+  origins:
+    - http://localhost*
+    - https://localhost*
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
