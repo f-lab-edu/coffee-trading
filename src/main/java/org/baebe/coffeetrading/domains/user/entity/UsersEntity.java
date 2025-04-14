@@ -1,5 +1,7 @@
 package org.baebe.coffeetrading.domains.user.entity;
 
+import static org.baebe.coffeetrading.commons.types.user.UserStatus.ENABLED;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.commons.types.user.AccountTypes;
 import org.baebe.coffeetrading.commons.types.user.GenderTypes;
 import org.baebe.coffeetrading.commons.types.user.UserStatus;
@@ -18,6 +21,7 @@ import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Slf4j
 @Table(name = "USERS")
 public class UsersEntity extends BaseTimeEntity {
 
@@ -80,5 +84,35 @@ public class UsersEntity extends BaseTimeEntity {
         this.userType = userType;
     }
 
+    public static UsersEntity ofUser(
+        String email,
+        String password,
+        String nickname,
+        AccountTypes accountType,
+        UserRole userType
+    ) {
+        return of(email, password, nickname, accountType, userType);
+    }
 
+    private static UsersEntity of(
+        String email,
+        String password,
+        String nickname,
+        AccountTypes accountType,
+        UserRole userType
+    ) {
+        log.info("[UserTemplates.of()] email >>> {}, UserType >>> {}", email, userType);
+        return UsersEntity.builder()
+            .email(email)
+            .password(password)
+            .userName(null)
+            .phone(null)
+            .birthDay(null)
+            .gender(null)
+            .nickname(nickname)
+            .status(ENABLED)
+            .accountType(accountType)
+            .userType(userType)
+            .build();
+    }
 }
