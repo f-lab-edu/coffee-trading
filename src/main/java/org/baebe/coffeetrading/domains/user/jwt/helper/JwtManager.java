@@ -1,12 +1,13 @@
 package org.baebe.coffeetrading.domains.user.jwt.helper;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.commons.exception.common.CoreException;
 import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
-import org.baebe.coffeetrading.commons.utils.redis.RedisUtils;
 import org.baebe.coffeetrading.domains.user.jwt.dto.vo.JwtTokenDto;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -27,8 +28,16 @@ public class JwtManager {
         if (getUserToken(userSn).isPresent()) {
             removeUserToken(userSn);
         }
-        Map<String, String> jwtTokenMap = RedisUtils.toJwtTokenMap(token);
+        Map<String, String> jwtTokenMap = toJwtTokenMap(token);
         redisTemplate.opsForHash().putAll(userKey, jwtTokenMap);
+    }
+
+    private Map<String, String> toJwtTokenMap(JwtTokenDto jwtTokenDto) {
+
+        return Map.of(
+            "accessToken", jwtTokenDto.accessToken(),
+            "refreshToken", jwtTokenDto.refreshToken(),
+            "createdAt", jwtTokenDto.createdAt().toString());
     }
 
     /**
@@ -45,8 +54,31 @@ public class JwtManager {
         String userKey = getUserKey(userSn);
 
         Map<Object, Object> tokenMap = redisTemplate.opsForHash().entries(userKey);
-        return RedisUtils.fromJwtTokenMap(tokenMap);
+        return fromJwtTokenMap(tokenMap);
     }
+
+    private Optional<JwtTokenDto> fromJwtTokenMap(Map<Object, Object> map) {
+
+        if (map == null || map.isEmpty()) return Optional.empty();
+
+        Map<String, String> toStringMap = map.entrySet().stream()
+            .filter(e -> e.getKey() != null && e.getValue() != null)
+            .collect(Collectors.toMap(
+                e -> e.getKey().toString(),
+                e -> e.getValue().toString()
+            ));
+
+        String accessToken = toStringMap.get("accessToken");
+        String refreshToken = toStringMap.get("refreshToken");
+
+        if (toStringMap.get("createdAt") == null || toStringMap.get("createdAt").isEmpty()) {
+            return Optional.of(new JwtTokenDto(accessToken, refreshToken, null));
+        }
+
+        LocalDateTime createdAt = LocalDateTime.parse(toStringMap.get("createdAt"));
+        return Optional.of(new JwtTokenDto(accessToken, refreshToken, createdAt));
+    }
+
     /**
      * 현재 Http 요청을 보낸 토큰이 로그인을 하여 저장이 되어 있는 지를 확인한다
      */
