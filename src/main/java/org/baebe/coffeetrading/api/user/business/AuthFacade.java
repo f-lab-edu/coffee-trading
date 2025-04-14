@@ -23,7 +23,7 @@ import org.springframework.security.core.AuthenticationException;
 @Slf4j
 @Business
 @RequiredArgsConstructor
-public class AuthBusiness {
+public class AuthFacade {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
