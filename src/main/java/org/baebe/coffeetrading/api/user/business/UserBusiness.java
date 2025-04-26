@@ -6,20 +6,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.api.user.dto.request.MobileAuthenticationRequest;
 import org.baebe.coffeetrading.api.user.dto.request.ModifyPasswordRequest;
 import org.baebe.coffeetrading.api.user.dto.request.RegisterRequest;
+import org.baebe.coffeetrading.api.user.dto.response.NaverProfileResponse;
 import org.baebe.coffeetrading.api.user.dto.response.RegisterResponse;
-import org.baebe.coffeetrading.commons.annotation.Business;
 import org.baebe.coffeetrading.commons.exception.common.CoreException;
 import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
+import org.baebe.coffeetrading.commons.types.user.AccountTypes;
+import org.baebe.coffeetrading.commons.types.user.GenderTypes;
+import org.baebe.coffeetrading.commons.types.user.UserRole;
 import org.baebe.coffeetrading.commons.types.user.UserStatus;
 import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 import org.baebe.coffeetrading.domains.user.service.UserService;
-import org.baebe.coffeetrading.domains.user.template.UserTemplates;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Slf4j
-@Business
+@Service
 @RequiredArgsConstructor
 public class UserBusiness {
     private final UserService userService;
@@ -33,6 +36,27 @@ public class UserBusiness {
         final UsersEntity registerUser = toUserEntityByRegisterRequest(registerRequest);
         UsersEntity result = userService.saveUser(registerUser);
         return RegisterResponse.of(result);
+    }
+
+    @Transactional
+    public void oauth2RegisterHandle(NaverProfileResponse profileInfo) {
+
+        checkDuplicateEmail(profileInfo.getEmail());
+        checkDuplicateNickname(profileInfo.getNickname());
+
+        UsersEntity registerUser = UsersEntity.builder()
+            .email(profileInfo.getEmail())
+            .password(null)
+            .userName(profileInfo.getName())
+            .phone(profileInfo.getMobile())
+            .gender(conversionNaverGenderType(profileInfo.getGender()))
+            .nickname(profileInfo.getNickname())
+            .status(UserStatus.ENABLED)
+            .accountType(AccountTypes.NAVER)
+            .userType(UserRole.USER)
+            .build();
+
+        userService.saveUser(registerUser);
     }
 
     public boolean isExistEmail(String email) {
@@ -62,6 +86,7 @@ public class UserBusiness {
     /**
      * 본인 인증
      */
+    @Transactional
     public void authenticationByMobile(String userId, MobileAuthenticationRequest mobileAuthenticationRequest) {
 
         UsersEntity user = checkDuplicateMobileAuthentication(userId,
@@ -107,6 +132,7 @@ public class UserBusiness {
         throw new CoreException(ErrorTypes.DUPLICATE_USER);
     }
 
+    @Transactional
     public void modifyPassword(String userId, ModifyPasswordRequest modifyPasswordRequest) {
 
         String oldPassword = modifyPasswordRequest.getOldPassword();
@@ -146,6 +172,7 @@ public class UserBusiness {
         userService.saveUser(user);
     }
 
+    @Transactional
     public void disableUser(String userId) {
 
         if (!StringUtils.hasText(userId)) {
@@ -185,7 +212,7 @@ public class UserBusiness {
 
         String encodePassword = passwordEncoder.encode(request.getPassword());
 
-        return UserTemplates.ofUser(
+        return UsersEntity.ofUser(
             request.getEmail(),
             encodePassword,
             request.getNickname(),
@@ -196,5 +223,14 @@ public class UserBusiness {
 
     private boolean isEqualsPassword(String password, String encodedPassword) {
         return passwordEncoder.matches(password, encodedPassword);
+    }
+
+    private GenderTypes conversionNaverGenderType(String gender) {
+
+        return switch (gender) {
+            case "F" -> GenderTypes.WOMAN;
+            case "M" -> GenderTypes.MAN;
+            default -> null;
+        };
     }
 }
