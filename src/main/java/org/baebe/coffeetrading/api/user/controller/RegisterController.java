@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.api.user.business.UserBusiness;
 import org.baebe.coffeetrading.api.user.dto.request.RegisterRequest;
 import org.baebe.coffeetrading.api.user.dto.response.RegisterResponse;
+import org.baebe.coffeetrading.commons.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class RegisterController {
     }
 
     @PostMapping
-    public RegisterResponse userRegister(@RequestBody RegisterRequest request) {
-        return userBusiness.registerHandle(request);
+    public ApiResponse<RegisterResponse> userRegister(@RequestBody RegisterRequest request) {
+        return ApiResponse.successByData(userBusiness.registerHandle(request));
     }
 }
