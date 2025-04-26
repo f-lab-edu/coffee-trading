@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.api.user.dto.request.LoginRequest;
 import org.baebe.coffeetrading.api.user.dto.request.TokenRequest;
 import org.baebe.coffeetrading.api.user.dto.response.LoginResponse;
-import org.baebe.coffeetrading.commons.annotation.Business;
+import org.baebe.coffeetrading.commons.dto.response.ApiResponse;
 import org.baebe.coffeetrading.commons.exception.common.CoreException;
 import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
 import org.baebe.coffeetrading.commons.types.user.UserRole;
@@ -19,9 +19,10 @@ import org.baebe.coffeetrading.domains.user.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-@Business
+@Service
 @RequiredArgsConstructor
 public class AuthFacade {
 
