@@ -28,7 +28,7 @@ public class UsersEntity extends BaseTimeEntity {
     @Column(name = "EMAIL", nullable = false, length = 50)
     private String email;
 
-    @Column(name = "PASSWORD", nullable = false, length = 256)
+    @Column(name = "PASSWORD", length = 256)
     private String password;
 
     @Column(name = "USER_NAME", length = 256)
@@ -94,6 +94,16 @@ public class UsersEntity extends BaseTimeEntity {
         return of(email, password, nickname, accountType, userType);
     }
 
+    public static UsersEntity ofUser(
+        UsersEntity user,
+        String userName,
+        String phone,
+        String birthDay,
+        GenderTypes gender
+    ) {
+        return of(user, userName, phone, birthDay, gender);
+    }
+
     private static UsersEntity of(
         String email,
         String password,
@@ -113,6 +123,26 @@ public class UsersEntity extends BaseTimeEntity {
             .status(ENABLED)
             .accountType(accountType)
             .userType(userType)
+            .build();
+    }
+    private static UsersEntity of(
+        UsersEntity user,
+        String userName,
+        String phone,
+        String birthDay,
+        GenderTypes gender
+    ) {
+        return UsersEntity.builder()
+            .email(user.getEmail())
+            .password(user.getPassword())
+            .userName(userName)
+            .phone(phone)
+            .birthDay(birthDay)
+            .gender(gender)
+            .nickname(user.getNickname())
+            .status(user.getStatus())
+            .accountType(user.getAccountType())
+            .userType(user.getUserType())
             .build();
     }
 }

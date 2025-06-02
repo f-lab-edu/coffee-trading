@@ -91,20 +91,7 @@ public class UserBusiness {
 
         UsersEntity user = checkDuplicateMobileAuthentication(userId,
             mobileAuthenticationRequest.getUserName(),
-            mobileAuthenticationRequest.getBirthday(), mobileAuthenticationRequest.getPhone());
-
-        user = UsersEntity.builder()
-            .email(user.getEmail())
-            .password(user.getPassword())
-            .userName(mobileAuthenticationRequest.getUserName())
-            .phone(mobileAuthenticationRequest.getPhone())
-            .birthDay(mobileAuthenticationRequest.getBirthday())
-            .gender(mobileAuthenticationRequest.getGender())
-            .nickname(user.getNickname())
-            .status(user.getStatus())
-            .accountType(user.getAccountType())
-            .userType(user.getUserType())
-            .build();
+            mobileAuthenticationRequest.getBirthday(), mobileAuthenticationRequest.getPhone(), mobileAuthenticationRequest.getGender());
 
         userService.saveUser(user);
     }
@@ -114,7 +101,7 @@ public class UserBusiness {
      * 본인 인증을 시도한 사용자의 정보가 DB에 존재하는지 확인하고
      * 없으면 UsersEntity를 반환, 있으면 에러 반환됨
      */
-    public UsersEntity checkDuplicateMobileAuthentication(String userId, String userName, String birthDay, String phone) {
+    public UsersEntity checkDuplicateMobileAuthentication(String userId, String userName, String birthDay, String phone, GenderTypes gender) {
 
         if (!StringUtils.hasText(userId)) {
             throw new CoreException(ErrorTypes.BAD_REQUESTS);
@@ -124,7 +111,9 @@ public class UserBusiness {
             userName, birthDay, phone);
 
         if (userList.isEmpty()) {
-            return userService.getByUserId(Long.parseLong(userId));
+            UsersEntity user = userService.getByUserId(Long.parseLong(userId));
+
+            return UsersEntity.ofUser(user, userName, phone, birthDay, gender);
         }
         else if (userList.size() > 1) {
             throw new CoreException(ErrorTypes.MULTI_USER_ERROR);
