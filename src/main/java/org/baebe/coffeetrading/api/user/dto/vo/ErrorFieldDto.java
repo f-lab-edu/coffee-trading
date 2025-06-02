@@ -1,4 +1,4 @@
-package org.baebe.coffeetrading.commons.dto.vo;
+package org.baebe.coffeetrading.api.user.dto.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.commons.dto.response.ApiResponse;
-import org.baebe.coffeetrading.commons.dto.vo.ErrorFieldDto;
+import org.baebe.coffeetrading.api.user.dto.vo.ErrorFieldDto;
 import org.baebe.coffeetrading.commons.exception.common.CoreException;
 import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
 import org.springframework.context.MessageSourceResolvable;
@@ -47,6 +47,16 @@ public class ExceptionRestResponseAdvice {
         return ApiResponse.error(ErrorTypes.BAD_ILLEAGAL_ARGUMENT, errorList);
     }
 
+    @ExceptionHandler(CoreException.class)
+    public ApiResponse<?> handleCoreException(CoreException e) {
+        switch (e.getErrorTypes().getLogLevel()) {
+            case ERROR -> log.error("[ErrType] >>> {}, [ErrMessage] >>> {}", e.getErrorTypes(), e.getMessage(), e);
+            case WARN -> log.warn("[ErrType] >>> {}, [ErrMessage] >>> {}", e.getErrorTypes(), e.getMessage(), e);
+            default -> log.info("[ErrType] >>> {}, [ErrMessage] >>> {}", e.getErrorTypes(), e.getMessage(), e);
+        }
+        return ApiResponse.error(e.getErrorTypes(), e.getData(), e);
+    }
+
     @ExceptionHandler(Exception.class)
     public ApiResponse<?> handleException(Exception e) {
         log.error("Exception >>> {}", e.getMessage(), e);
@@ -58,15 +68,5 @@ public class ExceptionRestResponseAdvice {
             );
         }
         return ApiResponse.error(ErrorTypes.INTERNAL_ERROR);
-    }
-
-    @ExceptionHandler(CoreException.class)
-    public ApiResponse<?> handleCoreException(CoreException e) {
-        switch (e.getErrorTypes().getLogLevel()) {
-            case ERROR -> log.error("[ErrType] >>> {}, [ErrMessage] >>> {}", e.getErrorTypes(), e.getMessage(), e);
-            case WARN -> log.warn("[ErrType] >>> {}, [ErrMessage] >>> {}", e.getErrorTypes(), e.getMessage(), e);
-            default -> log.info("[ErrType] >>> {}, [ErrMessage] >>> {}", e.getErrorTypes(), e.getMessage(), e);
-        }
-        return ApiResponse.error(e.getErrorTypes(), e.getData(), e);
     }
 }
