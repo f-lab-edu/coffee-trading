@@ -42,7 +42,6 @@ spring:
               - phone
             client-authentication-method: basic
 
-
 auth:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
@@ -57,3 +56,12 @@ server:
 #    threads:
 #      max: 600
 #      min-spare: 100
+cors:
+  origins:
+    - http://localhost:3000
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - HEAD
