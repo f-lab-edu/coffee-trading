@@ -5,9 +5,9 @@ import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.api.user.dto.request.LoginRequest;
+import org.baebe.coffeetrading.api.user.dto.request.LogoutRequest;
 import org.baebe.coffeetrading.api.user.dto.request.TokenRequest;
 import org.baebe.coffeetrading.api.user.dto.response.LoginResponse;
-import org.baebe.coffeetrading.commons.dto.response.ApiResponse;
 import org.baebe.coffeetrading.commons.exception.common.CoreException;
 import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
 import org.baebe.coffeetrading.commons.types.user.UserRole;
@@ -45,23 +45,34 @@ public class AuthFacade {
         String accessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
         String refreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
 
-        jwtManager.addUserToken(userId.toString(), createJwtTokenDto(accessToken, refreshToken));
+        return LoginResponse.of(accessToken, refreshToken, user);
+    }
+
+    public LoginResponse oauth2LoginHandle(String email) {
+        UsersEntity user = userService.getByUserEmail(email);
+
+        Long userId = user.getId();
+        UserRole userType = user.getUserType();
+
+        Date issuedAt = new Date();
+        String accessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
+        String refreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
 
         return LoginResponse.of(accessToken, refreshToken, user);
     }
 
-    public void logout(String userId) {
+    public void logout(LogoutRequest request) {
 
-        UsersEntity user = userService.getByUserId(Long.parseLong(userId));
-        log.info("Logout userId : {}, userEmail : {}", user.getId(), user.getEmail());
-        jwtManager.removeUserToken(user.getId().toString());
+        UsersEntity user = userService.getByUserId(Long.parseLong(request.getUserId()));
+        log.info("Logout userSn : {}, userEmail : {}", request.getUserId(), user.getEmail());
+        jwtManager.addUserToken(request.getUserId(), createJwtTokenDto(request.getAccessToken(), request.getRefreshToken()));
     }
 
     public LoginResponse refreshHandle(TokenRequest tokenRequest) {
         String refreshToken = tokenRequest.getRefreshToken();
 
-        if (!jwtTokenProvider.validateRefreshTokenInRedis(refreshToken)) {
-            throw new CoreException(ErrorTypes.TOKEN_EXPIRED);
+        if (jwtTokenProvider.validateRefreshTokenInRedis(refreshToken)) {
+            throw new CoreException(ErrorTypes.UN_AUTHORIZED);
         }
 
         Long userId = Long.parseLong(jwtTokenProvider.getUserIdByToken(refreshToken));
@@ -71,8 +82,6 @@ public class AuthFacade {
         Date issuedAt = new Date();
         String newAccessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
         String newRefreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
-
-        jwtManager.addUserToken(userId.toString(), createJwtTokenDto(newAccessToken, newRefreshToken));
 
         return LoginResponse.of(newAccessToken, newRefreshToken, user);
     }

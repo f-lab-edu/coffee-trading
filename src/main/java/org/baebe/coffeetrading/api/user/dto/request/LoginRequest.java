@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.baebe.coffeetrading.api.user.annotation.PasswordValid;
-import org.baebe.coffeetrading.commons.types.user.AccountTypes;
 
 @Getter
 @NoArgsConstructor
@@ -18,6 +17,4 @@ public class LoginRequest {
     @NotBlank(message = "패스워드가 입력되지 않았습니다. 패스워드를 입력해주세요.")
     @PasswordValid
     private String password;
-
-    private AccountTypes accountType;
 }
