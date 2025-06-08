@@ -9,8 +9,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
@@ -62,27 +65,36 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Redis에 요청토큰이 있는지 검증
+     * accessToken 유효 여부 검증
      */
     public boolean validateAccessTokenInRedis(String token) {
         if (isAccessToken(token)) {
             Jws<Claims> jws = getJws(token);
             String userId =  jws.getBody().getSubject();
-            return jwtManager.isValidCompareAccessToken(userId, token);
-        }
 
+            if (jwtManager.isAccessTokenBlacklisted(userId, token)) {
+                log.warn("AccessToken is Blacklisted, userSn >>> {}", userId);
+                throw new CoreException(ErrorTypes.BLACKLISTED_TOKEN);
+            }
+            return true;
+        }
         throw new CoreException(ErrorTypes.BAD_TOKEN_TYPE);
     }
 
     /**
-     * Redis에 RefreshToken이 있는지 검증
+     * refreshToken 유효 여부 검증
      */
 
     public boolean validateRefreshTokenInRedis(String token) {
         if (isRefreshToken(token)) {
             Jws<Claims> jws = getJws(token);
-            String userSn =  jws.getBody().getSubject();
-            return jwtManager.isValidCompareRefreshToken(userSn, token);
+            String userId =  jws.getBody().getSubject();
+
+            if (jwtManager.isRefreshTokenBlacklisted(userId, token)) {
+                log.warn("RefreshToken is Blacklisted, userSn >>> {}", userId);
+                throw new CoreException(ErrorTypes.BLACKLISTED_TOKEN);
+            }
+            return true;
         }
 
         throw new CoreException(ErrorTypes.BAD_TOKEN_TYPE);
@@ -136,8 +148,12 @@ public class JwtTokenProvider {
             return Jwts.parserBuilder().setSigningKey(getSecretKey()).build().parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
             throw new CoreException(ErrorTypes.TOKEN_EXPIRED);
-        } catch (Exception e) {
-            throw e;
+        } catch (UnsupportedJwtException | MalformedJwtException e) {
+            throw new CoreException(ErrorTypes.INVALID_TOKEN_FORMAT);
+        } catch (SignatureException e) {
+            throw new CoreException(ErrorTypes.SIGNATURE_VERIFICATION_FAILED);
+        } catch (IllegalArgumentException e) {
+            throw new CoreException(ErrorTypes.BAD_ILLEGAL_ARGUMENT);
         }
     }
 
