@@ -25,7 +25,7 @@ public class FlavorPointsEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STORE_ID")
-    private StoresEntity store;
+    private StoresEntity stores;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FLAVORITEM_ID")
@@ -38,12 +38,12 @@ public class FlavorPointsEntity extends BaseTimeEntity {
     @Builder
     private FlavorPointsEntity(
         Integer reviewPoint,
-        StoresEntity store,
+        StoresEntity stores,
         FlavorItemsEntity flavorItem,
         UsersEntity user
     ) {
         this.reviewPoint = reviewPoint;
-        this.store = store;
+        this.stores = stores;
         this.flavorItem = flavorItem;
         this.user = user;
     }
