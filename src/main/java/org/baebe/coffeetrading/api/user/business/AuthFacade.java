@@ -37,28 +37,12 @@ public class AuthFacade {
         String password = loginRequest.getPassword();
         validateLogin(email, password);
 
-        UsersEntity user = userService.getByUserEmail(email);
-        Long userId = user.getId();
-        UserRole userType = user.getUserType();
-
-        Date issuedAt = new Date();
-        String accessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
-        String refreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
-
-        return LoginResponse.of(accessToken, refreshToken, user);
+        return generateLoginResponse(email);
     }
 
     public LoginResponse oauth2LoginHandle(String email) {
-        UsersEntity user = userService.getByUserEmail(email);
 
-        Long userId = user.getId();
-        UserRole userType = user.getUserType();
-
-        Date issuedAt = new Date();
-        String accessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
-        String refreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
-
-        return LoginResponse.of(accessToken, refreshToken, user);
+        return generateLoginResponse(email);
     }
 
     public void logout(LogoutRequest request) {
@@ -98,5 +82,18 @@ public class AuthFacade {
 
     private JwtTokenDto createJwtTokenDto(String accessToken, String refreshToken) {
         return new JwtTokenDto(accessToken, refreshToken, LocalDateTime.now());
+    }
+
+    private LoginResponse generateLoginResponse(String email) {
+
+        UsersEntity user = userService.getByUserEmail(email);
+        Long userId = user.getId();
+        UserRole userType = user.getUserType();
+
+        Date issuedAt = new Date();
+        String accessToken = jwtTokenProvider.generatedAccessToken(userId, userType, issuedAt);
+        String refreshToken = jwtTokenProvider.generatedRefreshToken(userId, userType, issuedAt);
+
+        return LoginResponse.of(accessToken, refreshToken, user);
     }
 }
