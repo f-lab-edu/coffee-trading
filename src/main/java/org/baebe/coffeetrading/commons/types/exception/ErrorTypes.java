@@ -22,18 +22,34 @@ public enum ErrorTypes {
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, ERROR, "허용되지 않은 HTTP 메소드입니다."),
 
     TOKEN_EXPIRED(UNAUTHORIZED, WARN, "로그인 시간이 만료되었습니다. 다시 로그인해 주세요."),
+    OAUTH_TOKEN_EXPIRED(UNAUTHORIZED, WARN, "간편 로그인 시간이 만료되었습니다. 다시 로그인해 주세요."),
 
     INTERNAL_ERROR(INTERNAL_SERVER_ERROR, ERROR, "알 수 없는 오류가 발생하였습니다."),
     CORS_ORIGINS_ERROR(INTERNAL_SERVER_ERROR, ERROR, "CorsProperties requires origins setting"),
     CORS_ALLOWED_METHOD_ERROR(INTERNAL_SERVER_ERROR, ERROR, "CorsProperties requires allowedMethods setting"),
 
+    DUPLICATE_USER(BAD_REQUEST, WARN, "해당 정보로 인증된 계정이 존재합니다."),
     DUPLICATE_USER_ID(BAD_REQUEST, WARN, "해당 이메일은 사용 중입니다."),
     DUPLICATE_NICKNAME(BAD_REQUEST, WARN, "해당 닉네임은 사용 중입니다."),
+    DUPLICATE_STORE_LIST_NAME(BAD_REQUEST, WARN, "해당 그룹명은 사용중입니다."),
+    DUPLICATE_STORE(BAD_REQUEST, WARN, "해당 가게는 이미 등록되어있습니다."),
+    DUPLICATE_PRODUCT(BAD_REQUEST, WARN, "이미 등록된 상품입니다."),
+    DUPLICATE_PRODUCT_OPTION(BAD_REQUEST, WARN, "이미 등록된 옵션입니다."),
 
-    DUPLICATE_USER(BAD_REQUEST, WARN, "해당 정보로 인증된 계정이 존재합니다."),
     USER_NOT_FOUND(NOT_FOUND, INFO, "아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요."),
 
-    STORE_NOT_FOUND(NOT_FOUND, INFO, "가게 정보를 찾을 수 없습니다. 고객센터로 문의해 주세요."),
+    STORE_NOT_FOUND(NOT_FOUND, INFO, "매장 정보를 찾을 수 없습니다. 고객센터로 문의해 주세요."),
+    STORE_LIST_NOT_FOUND(NOT_FOUND, INFO, "나만의 가게 그룹 정보를 찾을 수 없습니다. 고객센터로 문의해 주세요."),
+
+    FILE_NOT_FOUND(NOT_FOUND, INFO, "존재하지 않는 파일입니다."),
+    FILE_UPLOAD_FAILED(BAD_REQUEST, INFO, "파일 업로드에 실패했습니다."),
+    UNSUPPORTED_FILE_FORMAT(BAD_REQUEST, INFO, "지원하지 않는 형식의 파일입니다."),
+    FILE_DELETE_FAILED(BAD_REQUEST, INFO, "파일 삭제에 실패했습니다."),
+    FILE_NAME_ENCRYPT_FAILED(BAD_REQUEST, INFO, "파일명 암호화에 실패했습니다"),
+    DIRECTORY_CREATE_FAILED(BAD_REQUEST, INFO, "폴더 생성에 실패했습니다."),
+
+    PRODUCT_NOT_FOUND(NOT_FOUND, INFO, "존재하지 않는 상품입니다.."),
+    PRODUCT_OPTION_NOT_FOUND(NOT_FOUND, INFO, "존재하지 않는 상품 옵션입니다."),
 
     WEB_LOGIN_REQUEST(BAD_REQUEST, INFO, "일반 계정으로 가입된 이메일입니다. 일반 로그인을 사용하여 로그인해 주세요."),
     NAVER_LOGIN_REQUEST(BAD_REQUEST, INFO, "네이버 간편 로그인으로 가입된 계정입니다. 네이버 간편 로그인을 이용해 주세요."),
