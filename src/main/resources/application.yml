@@ -25,6 +25,13 @@ spring:
       host: localhost
       port: ${REDIS_BINDING_PORT}
       password: ${REDIS_PASSWORD}
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0B
+      location: ${LOCAL_FILE_LOCATION}
+      max-file-size: 3MB
+      max-request-size: 100MB
   security:
     oauth2:
       client:
@@ -65,3 +72,4 @@ cors:
     - PUT
     - DELETE
     - HEAD
+
