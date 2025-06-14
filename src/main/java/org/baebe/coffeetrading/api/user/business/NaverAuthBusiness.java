@@ -13,10 +13,12 @@ import org.baebe.coffeetrading.domains.user.service.UserService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -96,15 +98,23 @@ public class NaverAuthBusiness implements OAuth2LoginBusiness{
 
     private NaverProfileResponse getProfileInfo(String accessToken) {
 
-        String profileUrl = "https://openapi.naver.com/v1/nid/me";
+        try {
+            String profileUrl = "https://openapi.naver.com/v1/nid/me";
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + accessToken);
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer " + accessToken);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        return restTemplate.exchange(profileUrl, HttpMethod.GET, entity, NaverProfileResponse.class).getBody();
+            return restTemplate.exchange(profileUrl, HttpMethod.GET, entity,
+                NaverProfileResponse.class).getBody();
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                throw new CoreException(ErrorTypes.OAUTH_TOKEN_EXPIRED);
+            }
+            throw new CoreException(ErrorTypes.OAUTH_PROFILE_NOT_FOUND);
+        }
     }
 }
