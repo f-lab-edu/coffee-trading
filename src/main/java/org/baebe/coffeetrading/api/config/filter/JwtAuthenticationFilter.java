@@ -11,8 +11,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baebe.coffeetrading.api.config.security.CustomUserDetails;
-import org.baebe.coffeetrading.commons.exception.common.CoreException;
-import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
 import org.baebe.coffeetrading.domains.user.jwt.dto.vo.AccessTokenDto;
 import org.baebe.coffeetrading.domains.user.jwt.helper.JwtTokenProvider;
 import org.springframework.http.HttpHeaders;
@@ -42,11 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (accessTokenOptional.isPresent()) {
             String accessToken = accessTokenOptional.get();
+
             if (jwtTokenProvider.validateAccessTokenInRedis(accessToken)) {
                 Authentication authentication = getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                throw new CoreException(ErrorTypes.TOKEN_EXPIRED);
             }
         } else {
             log.debug("No token found in request");

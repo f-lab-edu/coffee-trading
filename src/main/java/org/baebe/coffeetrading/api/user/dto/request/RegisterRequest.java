@@ -2,16 +2,13 @@ package org.baebe.coffeetrading.api.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import org.baebe.coffeetrading.api.user.annotation.PasswordValid;
-import org.baebe.coffeetrading.api.user.annotation.PhoneNumberValid;
 import org.baebe.coffeetrading.commons.types.user.AccountTypes;
-import org.baebe.coffeetrading.commons.types.user.GenderTypes;
 import org.baebe.coffeetrading.commons.types.user.UserRole;
 
 @Getter
-@AllArgsConstructor
 public class RegisterRequest {
 
     @NotBlank(message = "가입할 이메일이 입력되지 않았습니다. 이메일을 입력해주세요.")
@@ -25,7 +22,17 @@ public class RegisterRequest {
     @NotBlank(message = "닉네임이 입력되지 않았습니다. 닉네임을 입력해 주세요.")
     private String nickname;
 
-    AccountTypes accountType;
+    private AccountTypes accountType;
 
-    UserRole userType;
+    private UserRole userType;
+
+    @Builder
+    public RegisterRequest(String email, String password, String nickname, AccountTypes accountType,
+        UserRole userType) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.accountType = accountType;
+        this.userType = userType;
+    }
 }

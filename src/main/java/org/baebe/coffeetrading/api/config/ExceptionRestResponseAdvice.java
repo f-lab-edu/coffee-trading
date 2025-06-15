@@ -26,7 +26,7 @@ public class ExceptionRestResponseAdvice {
             .map(ErrorFieldDto::of)
             .toList();
 
-        return ApiResponse.error(ErrorTypes.BAD_ILLEAGAL_ARGUMENT, errorList);
+        return ApiResponse.error(ErrorTypes.BAD_ILLEGAL_ARGUMENT, errorList);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
@@ -44,7 +44,7 @@ public class ExceptionRestResponseAdvice {
 
                 return ErrorFieldDto.of(err.getMethodParameter().getParameterName(), errMessage);
             }).toList();
-        return ApiResponse.error(ErrorTypes.BAD_ILLEAGAL_ARGUMENT, errorList);
+        return ApiResponse.error(ErrorTypes.BAD_ILLEGAL_ARGUMENT, errorList);
     }
 
     @ExceptionHandler(CoreException.class)

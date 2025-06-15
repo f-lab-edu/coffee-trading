@@ -5,8 +5,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties({
-    JwtProperties.class
-//    CorsProperties.class
+    JwtProperties.class,
+    CorsProperties.class,
+    NaverProperties.class
 })
 public class ConfigurationProperties {
 

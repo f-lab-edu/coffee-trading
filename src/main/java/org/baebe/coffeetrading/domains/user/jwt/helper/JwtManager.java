@@ -3,6 +3,7 @@ package org.baebe.coffeetrading.domains.user.jwt.helper;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
 import org.baebe.coffeetrading.domains.user.jwt.dto.vo.JwtTokenDto;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -20,7 +22,7 @@ public class JwtManager {
     private final RedisTemplate<String, Object> redisTemplate;
 
     /**
-     * 로그인시 Redis에 토큰을 저장할때 사용
+     * 로그아웃 시 Redis Blacklist에 토큰을 저장할때 사용
      */
     public void addUserToken(String userSn, JwtTokenDto token) {
         String userKey = getUserKey(userSn);
@@ -30,6 +32,7 @@ public class JwtManager {
         }
         Map<String, String> jwtTokenMap = toJwtTokenMap(token);
         redisTemplate.opsForHash().putAll(userKey, jwtTokenMap);
+        redisTemplate.expire(userKey, 30*24*60*60, TimeUnit.SECONDS);
     }
 
     private Map<String, String> toJwtTokenMap(JwtTokenDto jwtTokenDto) {
@@ -40,9 +43,6 @@ public class JwtManager {
             "createdAt", jwtTokenDto.createdAt().toString());
     }
 
-    /**
-     * 로그아웃시 토큰이 존재하면 삭제한다.
-     */
     public void removeUserToken(String userSn) {
         String userKey = getUserKey(userSn);
         redisTemplate.delete(userKey);
@@ -80,28 +80,33 @@ public class JwtManager {
     }
 
     /**
-     * 현재 Http 요청을 보낸 토큰이 로그인을 하여 저장이 되어 있는 지를 확인한다
+     * Redis Blacklist에 Access 토큰 존재 검증
      */
-    public boolean isValidCompareAccessToken(String userSn, String accessToken) {
-        if (accessToken == null) {
-            throw new CoreException(ErrorTypes.BAD_TOKEN_TYPE);
+    public boolean isAccessTokenBlacklisted(String userSn, String accessToken) {
+
+        if (!StringUtils.hasText(accessToken)) {
+            throw new CoreException(ErrorTypes.UN_AUTHORIZED);
         }
-        JwtTokenDto jwtToken = getUserToken(userSn)
-            .orElseThrow(() -> new CoreException(ErrorTypes.TOKEN_EXPIRED));
 
-        return accessToken.equals(jwtToken.accessToken());
+        return getUserToken(userSn)
+            .map(token -> token.accessToken().equals(accessToken))
+            .orElse(false);
     }
+
     /**
-     * Refresh토큰 존재 검증
+     * Redis Blacklist에 Refresh 토큰 존재 검증
      */
-    public boolean isValidCompareRefreshToken(String userSn, String refreshToken) {
+    public boolean isRefreshTokenBlacklisted(String userSn, String refreshToken) {
 
-        if (refreshToken == null) throw new CoreException(ErrorTypes.BAD_REQUESTS);
+        if (!StringUtils.hasText(refreshToken)) {
+            throw new CoreException(ErrorTypes.UN_AUTHORIZED);
+        }
 
-        return getUserToken(userSn).map(jwtTokenDto ->
-                jwtTokenDto.refreshToken().equals(refreshToken))
-            .orElseThrow(() -> new CoreException(ErrorTypes.TOKEN_EXPIRED));
+        return getUserToken(userSn)
+            .map(token -> token.accessToken().equals(refreshToken))
+            .orElse(false);
     }
+
     private String getUserKey(String userId) {
         final String TOKEN_KEY = "USER_ID_";
         return TOKEN_KEY + userId;

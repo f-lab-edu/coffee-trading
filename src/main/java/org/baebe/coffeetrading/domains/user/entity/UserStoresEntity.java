@@ -19,25 +19,27 @@ import org.baebe.coffeetrading.domains.store.entity.StoresEntity;
 @Table(name = "USER_STORES")
 public class UserStoresEntity extends BaseTimeEntity {
 
-    @Column(name = "NAME", nullable = false)
-    private String storeListName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_STORE_GROUPS_ID")
+    private UserStoreGroupsEntity userStoreGroup;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private UsersEntity user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "STORE_ID")
-    private StoresEntity store;
+    @JoinColumn(name = "STORES_ID")
+    private StoresEntity stores;
 
     @Builder
     private UserStoresEntity(
-        String storeListName,
-        UsersEntity user,
-        StoresEntity store
+        UserStoreGroupsEntity userStoreGroup,
+        StoresEntity stores
     ) {
-        this.storeListName = storeListName;
-        this.user = user;
-        this.store = store;
+        this.userStoreGroup = userStoreGroup;
+        this.stores = stores;
+    }
+
+    public static UserStoresEntity of(UserStoreGroupsEntity userStoreGroup) {
+        return UserStoresEntity.builder()
+            .userStoreGroup(userStoreGroup)
+            .stores(null)
+            .build();
     }
 }

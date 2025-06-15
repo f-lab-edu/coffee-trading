@@ -35,8 +35,8 @@ public class OrdersEntity extends BaseTimeEntity {
     private UsersEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "STORE_ID")
-    private StoresEntity store;
+    @JoinColumn(name = "STORES_ID")
+    private StoresEntity stores;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID")
@@ -53,14 +53,14 @@ public class OrdersEntity extends BaseTimeEntity {
     private OrdersEntity(
         OrderStatus orderStatus,
         UsersEntity user,
-        StoresEntity store,
+        StoresEntity stores,
         CouponsEntity coupon,
         Integer totalAmount,
         PaymentTypes paymentType
     ) {
         this.orderStatus = orderStatus;
         this.user = user;
-        this.store = store;
+        this.stores = stores;
         this.coupon = coupon;
         this.totalAmount = totalAmount;
         this.paymentType = paymentType;

@@ -95,7 +95,7 @@ public class SecurityConfig {
 //                    .requestMatchers(openApiRequests).permitAll()
                     .requestMatchers(authApiRequests).authenticated()
                     .requestMatchers(adminApiRequests).hasAnyRole(ADMIN)
-                    .requestMatchers(partnerApiRequests).hasAnyRole(PARTNER)
+                    .requestMatchers(partnerApiRequests).hasAnyRole(PARTNER, ADMIN)
                     .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                     .anyRequest().authenticated()
             )

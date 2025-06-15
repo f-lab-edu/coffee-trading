@@ -1,21 +1,30 @@
 package org.baebe.coffeetrading.api.user.business;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.baebe.coffeetrading.api.user.dto.request.MyStoresRequest;
 import org.baebe.coffeetrading.api.user.dto.request.MobileAuthenticationRequest;
 import org.baebe.coffeetrading.api.user.dto.request.ModifyPasswordRequest;
 import org.baebe.coffeetrading.api.user.dto.request.RegisterRequest;
+import org.baebe.coffeetrading.api.user.dto.response.MyStoreInfoResponse;
 import org.baebe.coffeetrading.api.user.dto.response.NaverProfileResponse;
 import org.baebe.coffeetrading.api.user.dto.response.RegisterResponse;
+import org.baebe.coffeetrading.api.user.dto.response.MyStoresResponse;
 import org.baebe.coffeetrading.commons.exception.common.CoreException;
 import org.baebe.coffeetrading.commons.types.exception.ErrorTypes;
 import org.baebe.coffeetrading.commons.types.user.AccountTypes;
 import org.baebe.coffeetrading.commons.types.user.GenderTypes;
 import org.baebe.coffeetrading.commons.types.user.UserRole;
 import org.baebe.coffeetrading.commons.types.user.UserStatus;
+import org.baebe.coffeetrading.domains.store.entity.StoresEntity;
+import org.baebe.coffeetrading.domains.store.service.StoresService;
+import org.baebe.coffeetrading.domains.user.entity.UserStoreGroupsEntity;
+import org.baebe.coffeetrading.domains.user.entity.UserStoresEntity;
 import org.baebe.coffeetrading.domains.user.entity.UsersEntity;
 import org.baebe.coffeetrading.domains.user.service.UserService;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +36,7 @@ import org.springframework.util.StringUtils;
 public class UserBusiness {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final StoresService storesService;
 
     @Transactional
     public RegisterResponse registerHandle(RegisterRequest registerRequest) {
@@ -41,16 +51,16 @@ public class UserBusiness {
     @Transactional
     public void oauth2RegisterHandle(NaverProfileResponse profileInfo) {
 
-        checkDuplicateEmail(profileInfo.getEmail());
-        checkDuplicateNickname(profileInfo.getNickname());
+        checkDuplicateEmail(profileInfo.getResponse().getEmail());
+        checkDuplicateNickname(profileInfo.getResponse().getNickname());
 
         UsersEntity registerUser = UsersEntity.builder()
-            .email(profileInfo.getEmail())
+            .email(profileInfo.getResponse().getEmail())
             .password(null)
-            .userName(profileInfo.getName())
-            .phone(profileInfo.getMobile())
-            .gender(conversionNaverGenderType(profileInfo.getGender()))
-            .nickname(profileInfo.getNickname())
+            .userName(profileInfo.getResponse().getName())
+            .phone(profileInfo.getResponse().getMobile())
+            .gender(conversionNaverGenderType(profileInfo.getResponse().getGender()))
+            .nickname(profileInfo.getResponse().getNickname())
             .status(UserStatus.ENABLED)
             .accountType(AccountTypes.NAVER)
             .userType(UserRole.USER)
@@ -185,6 +195,74 @@ public class UserBusiness {
         userService.saveUser(user);
     }
 
+    public void addMyStoreList(String userId, String storeListName){
+
+        UsersEntity user = userService.getByUserId(Long.parseLong(userId));
+
+        checkDuplicateMyStoreListName(userId, storeListName);
+
+        UserStoreGroupsEntity userStores = UserStoreGroupsEntity
+            .builder()
+            .name(storeListName)
+            .user(user)
+            .build();
+        userService.saveUserStoreList(userStores);
+    }
+
+    /**
+     * 요청한 가게가 리스트에 있으면 삭제하고 없으면 추가한다.
+     */
+    public void myStoreHandle(MyStoresRequest request){
+
+        UserStoreGroupsEntity userStoreGroupsEntity =
+            userService.getUserStoreGroupsById(Long.parseLong(request.getUserStoreGroupId()));
+
+        StoresEntity storesEntity = storesService.getStoreById(Long.parseLong(request.getStoreId()));
+
+        userService.getUserStoresByUserStoreGroupIdAndStoreId(Long.parseLong(request.getUserStoreGroupId()), Long.parseLong(request.getStoreId()))
+            .ifPresentOrElse(ent -> {
+                userService.deleteUserStore(Long.parseLong(request.getUserStoreGroupId()), Long.parseLong(request.getStoreId()));
+            },
+                () -> addMyStore(userStoreGroupsEntity, storesEntity));
+    }
+
+    private void addMyStore(UserStoreGroupsEntity userStoreGroupsEntity, StoresEntity storesEntity){
+
+        UserStoresEntity userStores = UserStoresEntity.builder()
+            .userStoreGroup(userStoreGroupsEntity)
+            .stores(storesEntity)
+            .build();
+
+        userService.saveUserStore(userStores);
+    }
+
+    public List<MyStoresResponse> getMyStoreList (String userId){
+
+        return userService.getUserStoreGroupsByUserId(Long.parseLong(userId)).stream()
+            .map(group -> MyStoresResponse.builder()
+                .storeGroupId(String.valueOf(group.getId()))
+                .storeListName(group.getName())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    public List<MyStoreInfoResponse> getMyStoreListInfo (String userStoreGroupId){
+        return userService.getUserStoresByUserStoreGroupId(Long.parseLong(userStoreGroupId));
+    }
+
+    public void removeMyStoreList(String userStoreGroupId){
+
+        try {
+            userService.deleteUserStoreList(Long.parseLong(userStoreGroupId));
+        } catch (EmptyResultDataAccessException e) {
+            throw new CoreException(ErrorTypes.STORE_LIST_NOT_FOUND, "삭제하려는 그룹 정보가 확인되지 않습니다.");
+        }
+    }
+    public void removeMyStoreListInfo(MyStoresRequest request){
+
+        userService.deleteUserStore(Long.parseLong(request.getUserStoreGroupId()), Long.parseLong(request.getStoreId()));
+    }
+
     private void checkDuplicateNickname(String nickname) {
         if (userService.existsByNickname(nickname)) {
             throw new CoreException(ErrorTypes.DUPLICATE_NICKNAME);
@@ -194,6 +272,12 @@ public class UserBusiness {
     private void checkDuplicateEmail(String email) {
         if (userService.existsByEmail(email)) {
             throw new CoreException(ErrorTypes.DUPLICATE_USER_ID);
+        }
+    }
+
+    private void checkDuplicateMyStoreListName(String userId, String storeListName) {
+        if (userService.exitsByUserStoreGroupName(Long.parseLong(userId), storeListName)) {
+            throw new CoreException(ErrorTypes.DUPLICATE_STORE_LIST_NAME);
         }
     }
 

@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.baebe.coffeetrading.commons.types.store.StoreStatus;
 import org.baebe.coffeetrading.commons.types.store.StoreTypes;
 import org.baebe.coffeetrading.domains.common.BaseTimeEntity;
 
@@ -33,6 +34,10 @@ public class StoresEntity extends BaseTimeEntity {
     @Column(name = "DESCRIPTION")
     private String description;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private StoreStatus status;
+
     @Column(name = "STORE_TYPE")
     @Enumerated(EnumType.STRING)
     private StoreTypes storeType;
@@ -44,6 +49,7 @@ public class StoresEntity extends BaseTimeEntity {
         String roadNameAddress,
         String telephone,
         String description,
+        StoreStatus status,
         StoreTypes storeType
     ) {
         this.title = title;
@@ -51,6 +57,25 @@ public class StoresEntity extends BaseTimeEntity {
         this.roadNameAddress = roadNameAddress;
         this.telephone = telephone;
         this.description = description;
+        this.status = status;
+        this.storeType = storeType;
+    }
+
+    public void update(
+        String title,
+        String address,
+        String roadNameAddress,
+        String telephone,
+        String description,
+        StoreStatus status,
+        StoreTypes storeType
+    ) {
+        this.title = title;
+        this.address = address;
+        this.roadNameAddress = roadNameAddress;
+        this.telephone = telephone;
+        this.description = description;
+        this.status = status;
         this.storeType = storeType;
     }
 }
